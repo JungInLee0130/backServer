@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.http.HttpStatus;
+import com.ssafy.edu.exception.BusinessException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.edu.exception.ErrorCode;
-import com.ssafy.edu.exception.MemberException;
-import com.ssafy.edu.exception.TokenInvalidException;
 import com.ssafy.edu.member.model.dto.MemberDto;
 import com.ssafy.edu.member.service.JwtServiceImpl;
 import com.ssafy.edu.member.service.MemberService;
@@ -42,16 +40,23 @@ public class LoginController {
 	public ApiResult<Map<String, Object>> login(@RequestBody MemberDto mdto){
 		Map<String, Object> resultMap = new HashMap<>();
 		MemberDto loginUser = memberService.login(mdto);
+
 		if (loginUser != null) { // 유저정보가 있음.
+			// 엑세스, 리프레시 생성
 			String accessToken = jwtService.createAccessToken("memberId", loginUser.getMemberId());// key, data
 			String refreshToken = jwtService.createRefreshToken("memberId", loginUser.getMemberId());// key, data
+			
+			// db 저장
 			memberService.saveRefreshToken(mdto.getMemberId(), refreshToken);
+			
+			// 엑세스 토큰 담아서 전송 : 이거 맞나?
 			resultMap.put("access-token", accessToken);
 			resultMap.put("refresh-token", refreshToken);
+
 			return ApiUtils.success(resultMap);
 		}
 		else { // 해당 유저가 없음.
-			throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
+			throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
 		}
 	}
 	
@@ -84,6 +89,6 @@ public class LoginController {
 			resultMap.put("access-token", accessToken);
 			return ApiUtils.success(resultMap);
 		}
-		throw new TokenInvalidException(ErrorCode.TOKEN_INVALID);
+		throw new BusinessException(ErrorCode.TOKEN_INVALID);
 	}
 }

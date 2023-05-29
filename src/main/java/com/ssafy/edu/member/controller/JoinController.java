@@ -1,6 +1,7 @@
 package com.ssafy.edu.member.controller;
 
 
+import com.ssafy.edu.exception.BusinessException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,9 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.edu.exception.DuplicatedMemberException;
 import com.ssafy.edu.exception.ErrorCode;
-import com.ssafy.edu.exception.MemberException;
 import com.ssafy.edu.member.model.dto.MemberDto;
 import com.ssafy.edu.member.service.MemberService;
 import com.ssafy.edu.utils.ApiUtils;
@@ -35,7 +34,7 @@ public class JoinController {
 			return ApiUtils.success(responsedto);
 		}
 		
-		throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
+		throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
 	}
 	
 	// 중복 아이디 체크 : include
@@ -48,6 +47,6 @@ public class JoinController {
 			return ApiUtils.success(null);
 		}
 		// 204 던짐
-		throw new DuplicatedMemberException(ErrorCode.MEMBER_DUPLICATED);
+		throw new BusinessException(ErrorCode.MEMBER_DUPLICATED);
 	}
 }

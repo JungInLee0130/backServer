@@ -1,21 +1,13 @@
 package com.ssafy.edu.member.service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import com.ssafy.edu.exception.ErrorCode;
-import com.ssafy.edu.exception.UnAuthorizedException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -35,39 +27,23 @@ public class JwtServiceImpl implements JwtService {
 
 	@Override
 	public <T> String createAccessToken(String key, T data) {
-		// 10분
 		return create(key, data, "access-token", ACCESS_TOKEN_EXPIRE);
-		// 5초
-		//return create(key, data, "access-token", 1000 * 60L);
 	}
 
 	@Override
 	public <T> String createRefreshToken(String key, T data) {
-		// 7일
 		return create(key, data, "refresh-token", REFRESH_TOKEN_EXPIRE);
-		// 5초
-		//return create(key, data, "refresh-token", REFRESH_TOKEN_EXPIRE);
 	}
 
-	//Token 발급
-	/**
-	 * key : Claim에 셋팅될 key 값
-	 * data : Claim에 셋팅 될 data 값
-	 * subject : payload에 sub의 value로 들어갈 subject값
-	 * expire : 토큰 유효기간 설정을 위한 값
-	 * jwt 토큰의 구성 : header + payload + signature
-	 */
 	@Override
 	public <T> String create(String key, T data, String subject, long expire) {
-		// Payload 설정 : 생성일 (IssuedAt), 유효기간 (Expiration), 
-		// 토큰 제목 (Subject), 데이터 (Claim) 등 정보 세팅.
 		Claims claims = Jwts.claims()
 				// 토큰 제목 설정 ex) access-token, refresh-token
 				.setSubject(subject)
 				// 생성일 설정
-				.setIssuedAt(new Date()) 
+				.setIssuedAt(new Date())
 				// 만료일 설정 (유효기간)
-				.setExpiration(new Date(System.currentTimeMillis() + expire)); 
+				.setExpiration(new Date(System.currentTimeMillis() + expire));
 		
 		claims.put(key, data); 
 		

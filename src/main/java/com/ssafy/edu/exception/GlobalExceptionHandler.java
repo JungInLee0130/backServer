@@ -29,31 +29,13 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ApiUtils.ApiResult<?>> notFoundException(NotFoundException e) {
 		return errorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 	}
-	
-	@ExceptionHandler(UnAuthorizedException.class)
-	public ResponseEntity<ApiUtils.ApiResult<?>> handleUnAuthorizedException(UnAuthorizedException e){
-		return errorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401
-	}
-	
-	@ExceptionHandler(TokenExpiredException.class)
-	public ResponseEntity<ApiUtils.ApiResult<?>> handleTokenExpiredException(TokenExpiredException e){
-		return errorResponse(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-	}
-	
-	@ExceptionHandler(TokenInvalidException.class)
-	public ResponseEntity<ApiUtils.ApiResult<?>> handleTokenInvalidException(TokenInvalidException e){
-		return errorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401
-	}
-	
-	@ExceptionHandler(MemberException.class)
-	public ResponseEntity<ApiUtils.ApiResult<?>> handleMemberException(MemberException e){
-		return errorResponse(e.getMessage(), HttpStatus.NO_CONTENT); // 204
-	}
-	
-	// 회원가입
-	@ExceptionHandler(DuplicatedMemberException.class)
-	public ResponseEntity<ApiUtils.ApiResult<?>> handleDuplicatedMemberException(DuplicatedMemberException e){
-		// 204: 컨텐츠는 제공하지않는다.
-		return errorResponse(e.getMessage(), HttpStatus.NO_CONTENT);
+
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
+		final ErrorCode errorCode = e.getErrorCode();
+		log.debug("errorCode : {}", errorCode);
+		log.debug("errorMessage: {}", errorCode.getMessage());
+		final ErrorResponse response = ErrorResponse.of(errorCode);
+		return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
 	}
 }

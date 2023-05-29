@@ -7,15 +7,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
+import com.ssafy.edu.exception.BusinessException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.ssafy.edu.exception.ErrorCode;
-import com.ssafy.edu.exception.TokenExpiredException;
-import com.ssafy.edu.exception.TokenInvalidException;
-import com.ssafy.edu.exception.UnAuthorizedException;
 import com.ssafy.edu.member.service.JwtService;
-import com.ssafy.edu.member.service.MemberService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -33,37 +30,42 @@ public class JwtInterceptor implements HandlerInterceptor {
 	private final JwtService jwtService;
 
 	@Override
+	// JwtInterceptor : jwt validation만 검증
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 		if (isPreflightRequest(request)) {
 			return true;
 		}
-		String token = request.getHeader("access-token");
+		String accessToken = request.getHeader("access-token"); // 엑세스 토큰 받아옴
 		String refreshToken = request.getHeader("refresh-token");
 		
-		// 둘다 없음 : un_authorized
-		if (token == null || refreshToken == null) {
-			throw new UnAuthorizedException(ErrorCode.UN_AUTHORIZED);
+		// 엑세스 토큰 없음
+		if (accessToken == null) {
+			throw new BusinessException(ErrorCode.UN_AUTHORIZED);
 		}
-		//refreshToken 먼저 체크
+
+		// 엑세스 토큰 형식 검증, expired 검증
 		try {
-			jwtService.checkToken(refreshToken);
-		} catch(Exception e) {
-			throw new TokenInvalidException(ErrorCode.TOKEN_INVALID);
-		}
-		
-		try {
-			jwtService.checkToken(token);
+			jwtService.checkToken(accessToken);
 		} catch(MalformedJwtException | UnsupportedJwtException | SignatureException e) {
-			throw new TokenInvalidException(ErrorCode.TOKEN_INVALID);
+			throw new BusinessException(ErrorCode.TOKEN_INVALID);
 		} catch(ExpiredJwtException e) {
-			//여기서 새로 accesstoken 발급해주기.
+			// 로그인시 인터셉터를 거치지 않으므로 여기서 만들필요없다.
+			// 단, 만료되었으면 refreshtoken 확인 -> access 생성후 던져줌.
+			//response.setHeader("Access-Control-Expose-Headers", "access-token");
+			//response.setHeader("access-token", newToken);
 			String memberId = jwtService.getMemberId(refreshToken);
-			String newToken = jwtService.createAccessToken("memberId", memberId);
-			response.setHeader("Access-Control-Expose-Headers", "access-token");
-			response.setHeader("access-token", newToken);
-			throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);
+			jwtService.createAccessToken("memberId", memberId);
+			throw new BusinessException(ErrorCode.TOKEN_EXPIRED);
 		}
+
+		// 엑세스토큰 validation 검증 : 전체 exception
+		try {
+			jwtService.checkToken(accessToken);
+		} catch(Exception e) {
+			throw new BusinessException(ErrorCode.TOKEN_INVALID);
+		}
+
 		return true;
 	}
 

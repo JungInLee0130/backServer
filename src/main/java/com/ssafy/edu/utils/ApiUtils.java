@@ -18,8 +18,8 @@ public class ApiUtils {
   }
 
   public static class ApiError {
-    private final String message;
-    private final int status;
+    private final String message; // 에러내용
+    private final int status; // 상태코드
 
     ApiError(Throwable throwable, HttpStatus status) {
       this(throwable.getMessage(), status);
@@ -42,9 +42,9 @@ public class ApiUtils {
   }
 
   public static class ApiResult<T> {
-    private final boolean success;
-    private final T response;
-    private final ApiError error;
+    private final boolean success; // success or fail
+    private final T response; // 데이터
+    private final ApiError error; // error
 
     private ApiResult(boolean success, T response, ApiError error) {
       this.success = success;
