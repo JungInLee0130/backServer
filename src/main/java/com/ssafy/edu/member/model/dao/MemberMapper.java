@@ -18,7 +18,7 @@ public interface MemberMapper {
 	void memberUpdate(MemberDto mdto);
 	String findById(String memberId);
 	MemberDto loginMember(String memberId, String memberPassword);
-	
+
 	public void saveRefreshToken(Map<String, String> map);
 	public Object getRefreshToken(String memberId);
 	public void deleteRefreshToken(Map<String, String> map);

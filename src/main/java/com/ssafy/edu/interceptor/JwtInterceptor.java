@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Component
 public class JwtInterceptor implements HandlerInterceptor {
-	
+
 	private final JwtService jwtService;
 
 	@Override
@@ -38,7 +38,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 		}
 		String accessToken = request.getHeader("access-token"); // 엑세스 토큰 받아옴
 		String refreshToken = request.getHeader("refresh-token");
-		
+
 		// 엑세스 토큰 없음
 		if (accessToken == null) {
 			throw new BusinessException(ErrorCode.UN_AUTHORIZED);

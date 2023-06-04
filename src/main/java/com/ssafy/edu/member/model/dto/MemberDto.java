@@ -24,17 +24,17 @@ public class MemberDto{
 	private String nickname; // 닉네임
 	private String password; // 비밀번호
 	private String phoneNumber; // 전화번호
-	
+
 	private String createdAt; // 생성 날짜
 	private String modifiedAt; // 수정 날짜
-	
+
 	private char memberRole; // 사용자 역할
-	private char status; // 삭제 상태 
-	
-	
-	
+	private char status; // 삭제 상태
+
+
+
 	public MemberDto(String memberId, String emailId, String emailDomain, String nickname, String password,
-			String phoneNumber) {
+					 String phoneNumber) {
 		super();
 		this.memberId = memberId;
 		this.emailId = emailId;

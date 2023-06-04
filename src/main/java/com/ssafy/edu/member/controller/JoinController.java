@@ -23,9 +23,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @CrossOrigin("*")
 public class JoinController {
-	
+
 	private final MemberService memberService;
-	
+
 	// 회원가입 : insert : exclude
 	// BindingResult 사용할 부분
 	@PostMapping("/join")
@@ -49,10 +49,10 @@ public class JoinController {
 		if (responsedto != null) {
 			return ApiUtils.success(responsedto);
 		}
-		
+
 		throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
 	}
-	
+
 	// 중복 아이디 체크 : include
 	@GetMapping("/check/{memberId}")
 	public ApiResult<MemberDto> duplicatedIdCheck(@PathVariable("memberId") String memberId){
