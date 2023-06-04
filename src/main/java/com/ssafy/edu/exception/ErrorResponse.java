@@ -18,13 +18,11 @@ public class ErrorResponse {
     private String code;
     private String message;
     private int status;
-
     private List<CustomFieldError> errors;
 
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    
     // 비즈니스 로직 에러
     public static class CustomFieldError{
         private String field;

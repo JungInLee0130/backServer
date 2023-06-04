@@ -8,12 +8,15 @@ import lombok.Getter;
 public enum ErrorCode {
 	// C001: common
 	// M001: member
+	// Business Exception
 	TOKEN_INVALID(401,"C002", "토큰이 유효하지 않습니다."),
 	TOKEN_EXPIRED(401,"C003","토큰 유효기간이 만료되었습니다."),
 	UN_AUTHORIZED(401,"C004","로그인이 필요 합니다."),
 
 	MEMBER_NOT_FOUND(204,"M001","회원을 찾을 수 없습니다."),
 	MEMBER_DUPLICATED(204,"M002","중복된 회원 입니다."),
+	MEMBERID_LENGTH(400, "M003", "아이디는 8자 이상 16자이하입니다."),
+	PASSWORD_LENGTH(400, "M004", "비밀번호는 8자 이상 16자이하입니다."),
 
 	// Exception
 	INTERNAL_SERVER_ERROR(500,"E001","내부 서버 오류입니다.");

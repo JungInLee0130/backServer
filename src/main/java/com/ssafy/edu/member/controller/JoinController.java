@@ -2,6 +2,8 @@ package com.ssafy.edu.member.controller;
 
 
 import com.ssafy.edu.exception.BusinessException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,8 +27,22 @@ public class JoinController {
 	private final MemberService memberService;
 	
 	// 회원가입 : insert : exclude
+	// BindingResult 사용할 부분
 	@PostMapping("/join")
-	public ApiResult<MemberDto> join(@RequestBody MemberDto mdto) {
+	public ApiResult<MemberDto> join(@RequestBody MemberDto mdto, BindingResult bindingResult) {
+		// 멤버 아이디가 8이상 16이하이고
+		// 영문자, 숫자만됨
+		int memberIdLength = mdto.getMemberId().length();
+		int passwordLength = mdto.getPassword().length();
+		if (8 > memberIdLength || memberIdLength > 16){
+			bindingResult.addError(new FieldError("mdto", "memberId", ErrorCode.MEMBERID_LENGTH.getMessage()));
+			throw new BusinessException(ErrorCode.MEMBERID_LENGTH);
+		}
+		if (8 > passwordLength || passwordLength > 16){
+			bindingResult.addError(new FieldError("mdto", "password", ErrorCode.PASSWORD_LENGTH.getMessage()));
+			throw new BusinessException(ErrorCode.PASSWORD_LENGTH);
+		}
+
 		memberService.join(mdto);
 		MemberDto responsedto = memberService.memberDetail(mdto.getMemberId());
 		// 성공
