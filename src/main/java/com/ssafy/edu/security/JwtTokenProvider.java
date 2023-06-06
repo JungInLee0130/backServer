@@ -7,6 +7,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
+import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,62 +17,53 @@ import org.springframework.stereotype.Component;
 
 import com.ssafy.edu.member.service.MemberService;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
-
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
-	private String secretKey = "ssafySecret";
-	
+
+	private static final String JWT_SECRET = "ssafySecret";
 	// 10분
-	private long tokenValidTime = 1000 * 60 * 10L;
-	
-	private final UserDetailsService userDetailsService;
-	
-	@PostConstruct
-	protected void init() {
-		secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-	}
-	
-	public String createToken(String memberId, char memberRole) {
-		Claims claims = Jwts.claims().setSubject(memberId);
-		claims.put("roles", memberRole);
+	private static final long JWT_EXPIRATION_MS = 1000 * 60 * 10L;
+
+	public static String generateToken(Authentication authentication){
 		Date now = new Date();
+		Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION_MS);
+
 		return Jwts.builder()
-				.setClaims(claims)
-				.setIssuedAt(now)
-				.setExpiration(new Date(System.currentTimeMillis() + tokenValidTime))
-				.signWith(SignatureAlgorithm.HS256, secretKey)
+				.setSubject((String) authentication.getPrincipal())
+				.setIssuedAt(new Date())
+				.setExpiration(expiryDate)
+				.signWith(SignatureAlgorithm.HS512, JWT_SECRET)
 				.compact();
 	}
-	
-	// jwt 토큰에서 인증 정보 조회
-	public Authentication getAuthentication(String token) {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
-		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+
+	public static String getUserIdFromJWT(String token) {
+		Claims claims = Jwts.parser()
+				.setSigningKey(JWT_SECRET)
+				.parseClaimsJws(token)
+				.getBody();
+
+		return claims.getSubject();
 	}
-	
-	// 토큰에서 회원 정보 추출
-	public String getUserPk(String token) {
-		return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-	}
-	
-	// request의 header에서 token 값을 가져옵니다. "Authorization": "Token값"
-	public String resolveToken(HttpServletRequest request) {
-		return request.getHeader("Authorization"); // "access-token" 대신 값
-	}
-	
-	// 토큰의 유효성 + 만료일자 확인
-	public boolean validateToken(String jwtToken) {
+
+	public static boolean validateToken(String token) {
 		try {
-			Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
-			return !claims.getBody().getExpiration().before(new Date());
-		} catch(Exception e) {
-			return false;
+			Jws<Claims> claims = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token);
+			return true;
+		} catch (SignatureException ex) {
+			log.error("Invalid JWT signature");
+		} catch (MalformedJwtException ex) {
+			log.error("Invalid JWT token");
+		} catch (ExpiredJwtException ex) {
+			log.error("Expired JWT token");
+		} catch (UnsupportedJwtException ex) {
+			log.error("Unsupported JWT token");
+		} catch (IllegalArgumentException ex) {
+			log.error("JWT claims string is empty.");
 		}
+		return false;
 	}
+
 }
