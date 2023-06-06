@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		try{
 			String jwt = getJwtFromRequest(request);
 			if (StringUtils.isNotEmpty(jwt) && jwtTokenProvider.validateToken(jwt)){
-				String user
+				String userId = JwtTokenProvider
 			}
 		}
 	}
