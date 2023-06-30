@@ -79,6 +79,18 @@
 		</dependency>
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>private</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<environment>private</environment>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -94,6 +106,12 @@
 				</configuration>
 			</plugin>
 		</plugins>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources/${environment}</directory>
+			</resource>
+		</resources>
 	</build>
 
 </project>

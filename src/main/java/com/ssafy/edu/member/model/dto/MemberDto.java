@@ -23,6 +23,7 @@ public class MemberDto{
 	private String emailDomain; // 이메일 도메인
 	private String nickname; // 닉네임
 	private String password; // 비밀번호
+	private String passwordIdentify; // 비밀번호 확인
 	private String phoneNumber; // 전화번호
 	
 	private String createdAt; // 생성 날짜

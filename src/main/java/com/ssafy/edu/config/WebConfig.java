@@ -3,6 +3,7 @@ package com.ssafy.edu.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -29,6 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
 		.excludePathPatterns("/login")
 		.excludePathPatterns("/logout/**")
 		.excludePathPatterns("/join")
+				.excludePathPatterns("/check/**")
 		.excludePathPatterns("/uploadImage")
 		.excludePathPatterns("/review/**")
 		.excludePathPatterns( 
